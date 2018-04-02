@@ -49,9 +49,9 @@ int heap_right(int parent)
 	return right;
 }
 
-void heap_exchange(PhoneNumber array[], int i, int j)
+void heap_exchange(PhoneNumber *array[], int i, int j)
 {
-    PhoneNumber tmp;
+    PhoneNumber *tmp;
     assert(NULL != array);
 
     tmp = array[i];
@@ -61,7 +61,7 @@ void heap_exchange(PhoneNumber array[], int i, int j)
     return;
 }
 
-void heap_min_ify(PhoneNumber array[], int index)
+void heap_min_ify(PhoneNumber *array[], int index)
 {
     int left, right, lowest;
     assert(NULL != array);
@@ -74,11 +74,11 @@ void heap_min_ify(PhoneNumber array[], int index)
     right = heap_right(index);
 
     lowest = index;
-    if((array[lowest].Count > array[left].Count) && (left != 0))
+    if((array[lowest]->Count > array[left]->Count) && (left != 0))
     {
         lowest = left;
     }
-    if((array[lowest].Count > array[right].Count) && (right != 0))
+    if((array[lowest]->Count > array[right]->Count) && (right != 0))
     {
         lowest = right;
     }
@@ -91,7 +91,7 @@ void heap_min_ify(PhoneNumber array[], int index)
     return;    	
 }
 
-void heap_build(PhoneNumber array[])
+void heap_build(PhoneNumber *array[])
 {
     int index;
     assert(NULL != array);
@@ -103,7 +103,7 @@ void heap_build(PhoneNumber array[])
     return;
 }
 
-void find_top(PhoneNumber array[], hash_t *hash)
+void find_top(PhoneNumber *array[], hash_t *hash)
 {
     int next, key;
     PhoneNumber *head, *tmp;
@@ -117,7 +117,7 @@ void find_top(PhoneNumber array[], hash_t *hash)
             tmp = g_HashBucket.Bucket[key];
             while((NULL != tmp) && (g_heapindex<=g_heapsize))
             {
-                array[g_heapindex] = *tmp;
+                array[g_heapindex] = tmp;
                 tmp = tmp->next;
                 g_heapindex++;
             }
@@ -139,9 +139,9 @@ void find_top(PhoneNumber array[], hash_t *hash)
         tmp = g_HashBucket.Bucket[key];
         while(NULL != tmp)
         {
-            if(tmp->Count > array[1].Count)
+            if(tmp->Count > array[1]->Count)
             {
-                array[1] = *tmp;
+                array[1] = tmp;
                 heap_min_ify(array, 1);
             }
             tmp = tmp->next;
@@ -159,7 +159,7 @@ void file_distribute(FILE *in, int count, FILE *out[])
     assert(NULL != in);
     assert(NULL != out);
 
-    while(NULL != (ptr=fgets(buf, sizeof(buf), in)))
+    while(NULL != (ptr=fgets(buf, 256, in)))
     {
         tmpNO = atoi(buf);
         index = tmpNO%count;
@@ -193,7 +193,6 @@ void appear_count(FILE *fp)
 
     while(NULL != (ptr=fgets(buf, sizeof(buf), fp)))
     {
-        buf[8] = '\0';
         key = g_HashBucket.HashKey(buf);
         head = g_HashBucket.Bucket[key];
         pre = head;
@@ -250,7 +249,7 @@ void hash_destroy()
 int main(int argc, char *argv[])
 {
     int num, FileCount, index;
-    PhoneNumber *tmp, *array;
+    PhoneNumber *tmp, **array;
     FILE *in, **out;
     char buf[128];
     assert(3 == argc);
@@ -263,18 +262,16 @@ int main(int argc, char *argv[])
         return -1;
     }
     num = atoi(argv[2]);
-    g_heapsize = num;
-    array = malloc(sizeof(PhoneNumber)*(num+1));
+    array = malloc(sizeof(PhoneNumber *)*(num+1));
     if(NULL == array)
     {
         free(out);
         return -1;
-    }
-    memset(array, 0, sizeof(array));
+    }    
     for(index=0; index<FileCount; index++)
     {
         sprintf(buf, "%d.txt", index);
-        out[index] = fopen(buf, "w+");
+        out[index] = fopen(buf, "w");
         if(NULL == out[index])
         {
             return -1;
@@ -286,15 +283,14 @@ int main(int argc, char *argv[])
     
     for(index=0; index<FileCount; index++)
     {
-        rewind(out[index]);
         appear_count(out[index]);
         find_top(array, &g_HashBucket);
         hash_destroy();
     }
 
-    for(index=1; index<=g_heapsize; index++)
+    for(index=1; index<=g_heapindex; index++)
     {
-        printf("%s  %d\n", array[index].Number, array[index].Count);
+        printf("%s  %d", array[index]->Number, array[index]->Count);
     }
 
     fclose(in);
