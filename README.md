@@ -1,2 +1,2 @@
 # test
-for study sometging else, like algorithm.
+for study something else, like algorithm.
