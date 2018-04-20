@@ -266,7 +266,7 @@ void RB_Insert_Fixup(Tree *tree, Node *new)
         }
         else
         {
-            uncle = parent->left_child;
+            uncle = parent->parent->left_child;
             if(RED == uncle->color)
             {
                 parent->color = BLACK;
@@ -307,7 +307,6 @@ void RB_Insert(Tree *tree, Node *new)
     if(nil == tree->root)
     {
         tree->root = new;
-        tree->root->color = BLACK;
         return;
     }
 
@@ -488,7 +487,6 @@ int RB_Delete(Tree *tree, Node *old)
             tree->root = successor;
             tree->root->color = BLACK;
             successor->parent = nil;
-            successor->right_child->parent = successor;
             if(BLACK == original_color)
             {
                 RB_Delete_Fixup(tree, replace);
@@ -564,7 +562,6 @@ int RB_Delete(Tree *tree, Node *old)
             }
             successor->parent = parent;
             successor->color = node->color;
-            successor->right_child->parent = successor;
             if(BLACK == original_color)
             {
                 RB_Delete_Fixup(tree, replace);
@@ -592,7 +589,7 @@ int RB_Build(Tree *tree, int count, int array[])
         }
         memset(node, 0, sizeof(Node));
         node->key = array[index];
-        node->color = RED;
+        node->color = BLACK;
         node->parent = nil;
         node->left_child = nil;
         node->right_child = nil;
