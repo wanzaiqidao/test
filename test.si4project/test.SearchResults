@@ -1,0 +1,3 @@
+---- RB_Insert Matches (2 in 1 files) ----
+red_black_tree.c line 302 : void RB_Insert(Tree *tree, Node *new)
+RB_Build in red_black_tree.c :         RB_Insert(tree, node);
